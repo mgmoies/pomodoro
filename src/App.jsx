@@ -396,7 +396,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-app-bg text-app-ink transition-colors duration-300 overflow-hidden font-sans select-none pb-4">
+    <div className="min-h-screen md:h-screen flex flex-col bg-app-bg text-app-ink transition-colors duration-300 overflow-y-auto md:overflow-hidden font-sans select-none pb-4">
       {/* Floating Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-md border-[3px] border-app-br bg-app-card text-app-ink text-sm font-extrabold shadow-retro animate-bounce">
@@ -405,13 +405,13 @@ export default function App() {
       )}
 
       {/* 3-Column Newspaper Layout split by vertical lines */}
-      <main className="flex-1 grid grid-cols-1 md:grid-cols-3 divide-y-[3px] md:divide-y-0 md:divide-x-[3px] divide-app-br gap-0 p-6 overflow-hidden max-h-screen">
+      <main className="flex-1 grid grid-cols-1 md:grid-cols-3 divide-y-[3px] md:divide-y-0 md:divide-x-[3px] divide-app-br gap-0 p-6 overflow-visible md:overflow-hidden md:max-h-screen">
         
         {/* Column 1: Personal Focus Dashboard (Tasks + Ambient Sounds) */}
-        <section className="h-full pr-0 md:pr-6 pb-6 md:pb-0 flex flex-col gap-4 overflow-hidden">
+        <section className="md:h-full pr-0 md:pr-6 pb-6 md:pb-0 flex flex-col gap-4 md:overflow-hidden overflow-visible shrink-0 min-h-[450px]">
           
           {/* Tasks checklist - stretches to fill column */}
-          <div className="flex-1 border-[3px] border-app-br bg-app-card rounded-2xl shadow-retro p-5 overflow-hidden flex flex-col">
+          <div className="flex-1 border-[3px] border-app-br bg-app-card rounded-2xl shadow-retro p-5 overflow-hidden flex flex-col min-h-[250px]">
             <TaskInput 
               tasks={tasks}
               onAddTask={handleAddTask}
@@ -437,7 +437,7 @@ export default function App() {
         </section>
 
         {/* Column 2: Core Timer stopwatch */}
-        <section className="h-full px-0 md:px-6 py-6 md:py-0 flex flex-col justify-between overflow-hidden">
+        <section className="md:h-full px-0 md:px-6 py-6 md:py-0 flex flex-col justify-between md:overflow-hidden overflow-visible shrink-0 min-h-[500px]">
           {/* selector tabs */}
           <ModeSelector 
             mode={timer.mode} 
@@ -517,8 +517,8 @@ export default function App() {
         </section>
 
         {/* Column 3: Group Focus Session Room */}
-        <section className="h-full pl-0 md:pl-6 pt-6 md:pt-0 overflow-hidden">
-          <div className="h-full border-[3px] border-app-br bg-app-card rounded-2xl shadow-retro p-5 overflow-hidden flex flex-col">
+        <section className="md:h-full pl-0 md:pl-6 pt-6 md:pt-0 flex flex-col md:overflow-hidden overflow-visible shrink-0 min-h-[450px]">
+          <div className="flex-1 border-[3px] border-app-br bg-app-card rounded-2xl shadow-retro p-5 overflow-hidden flex flex-col">
             <GroupSession 
               roomId={roomId}
               participants={participants} 
