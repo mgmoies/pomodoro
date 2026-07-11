@@ -477,8 +477,8 @@ export default function App() {
             )}
           </div>
 
-          {/* Stats Chips (Relocated to the bottom of the center column) */}
-          <div className="py-2.5 px-3 border-[3px] border-app-br bg-app-card rounded-xl shadow-retro-sm shrink-0">
+          {/* Stats Chips */}
+          <div className="shrink-0">
             <StatsChips 
               todayCount={stats.todayPomos} 
               totalCount={stats.pomos} 
