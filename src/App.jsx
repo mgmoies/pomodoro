@@ -33,6 +33,13 @@ const SettingsIcon = () => (
   </svg>
 );
 
+const TomatoIcon = ({ className = "w-12 h-12 text-tomato" }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v3m0 0c-3 0-5.5 1.5-6.5 4-1 2.5-.5 5.5 1.5 7.5s5 2.5 7.5 1.5c2.5-1 4-3.5 4-6.5s-1.5-5.5-4-6.5c-.7-.3-1.6-.5-2.5-.5z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6c.5-1.5 1.5-2.5 3-2.5M12 6c-.5-1.5-1.5-2.5-3-2.5" />
+  </svg>
+);
+
 
 
 // Adjective + Noun room ID generator (Monkeytype style)
@@ -73,13 +80,15 @@ export default function App() {
     short: 5,
     long: 20,
     interval: 4,
-    autoBreak: false
+    autoBreak: false,
+    vibe: 'vibeing'
   });
 
   // Lobby joining state
   const [hasJoined, setHasJoined] = useState(false);
   const [tempName, setTempName] = useState(settings.displayName || '');
   const [tempRoomId, setTempRoomId] = useState(roomId);
+  const [tempVibe, setTempVibe] = useState(settings.vibe || 'vibeing');
 
   // Private client Active Task ID selection (kept local to allow independent focus selection)
   const [activeTaskId, setActiveTaskId] = useLocalStorage('pomodoro_active_task_id', null);
@@ -203,6 +212,7 @@ export default function App() {
     roomId,
     userId,
     userName: settings.displayName || 'Tomato Member',
+    userVibe: settings.vibe || 'vibeing',
     activeTaskId,
     timerState: {
       status: timer.status,
@@ -230,7 +240,11 @@ export default function App() {
   const handleJoin = (e) => {
     e.preventDefault();
     if (tempName.trim()) {
-      setSettings(prev => ({ ...prev, displayName: tempName.trim() }));
+      setSettings(prev => ({ 
+        ...prev, 
+        displayName: tempName.trim(),
+        vibe: tempVibe.trim() || 'vibeing'
+      }));
       // Apply room ID if user changed it
       const finalRoom = (tempRoomId.trim().toLowerCase().replace(/\s+/g, '-')) || roomId;
       if (finalRoom !== roomId) {
@@ -300,13 +314,8 @@ export default function App() {
       <div className="min-h-screen flex items-center justify-center bg-app-bg text-app-ink font-sans p-6 transition-colors duration-300">
         <div className="w-full max-w-sm border-[3px] border-app-br bg-app-card rounded-2xl shadow-retro p-8 text-center flex flex-col items-center select-none">
           {/* Vintage Woodcut Illustration */}
-          <div className="w-24 h-24 mb-4 border-[3px] border-app-br rounded-full overflow-hidden bg-app-bg p-1 shadow-retro-sm">
-            <img 
-              src="/assets/tomato.jpg" 
-              alt="Tomato Engraving" 
-              className="w-full h-full object-contain filter dark:invert-0 dark:opacity-85 select-none"
-              draggable="false"
-            />
+          <div className="w-24 h-24 mb-4 border-[3px] border-app-br rounded-full overflow-hidden bg-app-card flex items-center justify-center shadow-retro-sm">
+            <TomatoIcon className="w-12 h-12" />
           </div>
 
           <h1 className="font-serif text-3xl mb-1 text-app-ink leading-tight">FocusTomato</h1>
@@ -351,6 +360,20 @@ export default function App() {
                 maxLength={20}
                 value={tempName}
                 onChange={(e) => setTempName(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border-2 border-app-br bg-app-bg text-sm font-extrabold outline-none focus:border-tomato text-app-ink placeholder-app-mt/40"
+              />
+            </div>
+
+            <div className="text-left flex flex-col gap-1.5">
+              <label className="text-[10px] uppercase font-black text-app-mt tracking-wider">
+                Status / Vibe
+              </label>
+              <input 
+                type="text"
+                placeholder="e.g. locked in, vibeing"
+                maxLength={20}
+                value={tempVibe}
+                onChange={(e) => setTempVibe(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border-2 border-app-br bg-app-bg text-sm font-extrabold outline-none focus:border-tomato text-app-ink placeholder-app-mt/40"
               />
             </div>

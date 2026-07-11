@@ -30,8 +30,8 @@ const PATTERNS = {
   }
 };
 
-const LotusIcon = () => (
-  <svg className="w-4.5 h-4.5 text-app-ink shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+const LotusIcon = ({ className = "w-4 h-4 text-long shrink-0" }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 21c-2-3-5-4-5-8.5C7 8.5 10 7.5 12 3c2 4.5 5 5.5 5 9.5 0 4.5-3 5.5-5 8.5z" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 12c-2-1-4.5-.5-5.5.5-1.2 1.2-.5 3.5 2.5 4 1.5.2 2.5-.2 3-1" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 12c2-1 4.5-.5 5.5.5 1.2 1.2.5 3.5-2.5 4-1.5.2-2.5-.2-3-1" />
@@ -39,8 +39,8 @@ const LotusIcon = () => (
 );
 
 export default function RelaxationWidget() {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [patternKey, setPatternKey] = useState('4444');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isActive, setIsActive] = useState(false);
   
   const [phaseIndex, setPhaseIndex] = useState(0);
@@ -53,7 +53,7 @@ export default function RelaxationWidget() {
   
   // Clean up timer on unmount or pause
   useEffect(() => {
-    if (isActive) {
+    if (isActive && isModalOpen) {
       const intervalMs = 50;
       timerRef.current = setInterval(() => {
         setElapsedTime((prev) => {
@@ -79,7 +79,7 @@ export default function RelaxationWidget() {
         clearInterval(timerRef.current);
       }
     };
-  }, [isActive, phaseIndex, patternKey]);
+  }, [isActive, phaseIndex, patternKey, isModalOpen]);
 
   // Reset exercise when changing pattern
   const handlePatternChange = (key) => {
@@ -89,14 +89,22 @@ export default function RelaxationWidget() {
     setElapsedTime(0);
   };
 
+  const startExercise = () => {
+    setPhaseIndex(0);
+    setElapsedTime(0);
+    setIsActive(true);
+    setIsModalOpen(true);
+  };
+
+  const closeExercise = () => {
+    setIsActive(false);
+    setIsModalOpen(false);
+    setPhaseIndex(0);
+    setElapsedTime(0);
+  };
+
   const toggleActive = () => {
-    if (isActive) {
-      setIsActive(false);
-    } else {
-      setIsActive(true);
-      setPhaseIndex(0);
-      setElapsedTime(0);
-    }
+    setIsActive(!isActive);
   };
 
   // Calculate current scale
@@ -106,78 +114,80 @@ export default function RelaxationWidget() {
   const secondsRemaining = Math.max(0, Math.ceil(currentPhase.duration - (elapsedTime / 1000)));
 
   return (
-    <div className="w-full border-[3px] border-app-br bg-app-card rounded-2xl shadow-retro-sm overflow-hidden font-sans select-none transition-all duration-300">
-      {/* Header Button */}
-      <button 
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full py-2.5 px-4 bg-app-bg/50 border-b-[3px] border-app-br flex items-center justify-between text-xs font-black text-app-ink hover:bg-app-bg/85 cursor-pointer uppercase tracking-wider transition-colors"
-      >
-        <span className="flex items-center gap-1.5">
-          <LotusIcon /> Relax & Breathe
+    <div className="w-full border-[3px] border-app-br bg-app-card rounded-xl p-3 shadow-retro-sm overflow-hidden font-sans select-none flex items-center justify-between gap-3 shrink-0">
+      <div className="flex flex-col gap-1">
+        <span className="text-[10px] font-black uppercase tracking-wider text-app-ink flex items-center gap-1 leading-none">
+          <LotusIcon className="w-3.5 h-3.5 text-long shrink-0" /> Relax & Breathe
         </span>
-        <span className="text-[10px] font-bold text-app-mt">
-          {isExpanded ? 'Collapse ▲' : 'Expand ▼'}
-        </span>
-      </button>
-
-      {isExpanded && (
-        <div className="p-4 flex flex-col items-center gap-4 animate-fadeIn">
-          {/* Pattern Selector */}
-          <div className="flex gap-1.5 w-full justify-center">
-            {Object.keys(PATTERNS).map((key) => (
-              <button
-                key={key}
-                onClick={() => handlePatternChange(key)}
-                className={`px-3 py-1.5 border-2 border-app-br text-[10px] font-black uppercase tracking-wide cursor-pointer transition-all ${
-                  patternKey === key 
-                    ? 'bg-tomato text-white shadow-retro-sm translate-x-[-1px] translate-y-[-1px]' 
-                    : 'bg-app-bg text-app-mt hover:border-tomato hover:text-tomato'
-                }`}
-              >
-                {PATTERNS[key].name}
-              </button>
-            ))}
-          </div>
-
-          <p className="text-[10px] text-app-mt uppercase tracking-wider font-extrabold -mt-1">
-            {pattern.desc}
-          </p>
-
-          {/* Interactive Breathing circle Area */}
-          <div className="h-32 flex items-center justify-center relative w-full overflow-hidden my-1">
-            {/* Guide Circle */}
-            <div 
-              style={{ transform: `scale(${isActive ? currentScale : 1})` }}
-              className={`w-16 h-16 rounded-full border-[3px] flex items-center justify-center transition-all duration-75 ease-linear shadow-retro-sm ${
-                isActive ? currentPhase.color : 'border-app-br bg-app-bg text-app-mt'
+        {/* Simple inline buttons to choose pattern */}
+        <div className="flex gap-1 mt-0.5">
+          {Object.keys(PATTERNS).map((key) => (
+            <button
+              key={key}
+              onClick={() => handlePatternChange(key)}
+              className={`px-2 py-0.5 border border-app-br rounded text-[8px] font-black uppercase tracking-wide cursor-pointer transition-all ${
+                patternKey === key 
+                  ? 'bg-tomato text-white border-tomato' 
+                  : 'bg-app-bg text-app-mt hover:border-tomato hover:text-tomato'
               }`}
             >
-              {isActive ? (
+              {PATTERNS[key].name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <button
+        onClick={startExercise}
+        className="px-4 py-2 rounded-lg border-[2px] border-app-br bg-tomato hover:bg-tomato-dark text-white text-[10px] font-black uppercase tracking-wider shadow-retro-sm shadow-retro-hover cursor-pointer"
+      >
+        Start
+      </button>
+
+      {/* Modal Overlay */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-xs border-[3px] border-app-br bg-app-card rounded-2xl p-6 shadow-2xl text-center flex flex-col items-center gap-4 text-app-ink">
+            <h3 className="font-serif text-xl flex items-center gap-1.5 leading-none">
+              <LotusIcon className="w-5 h-5 text-long" /> Breathing Guide
+            </h3>
+            <p className="text-[10px] text-app-mt uppercase tracking-wider font-extrabold -mt-2">
+              {pattern.name} • {pattern.desc}
+            </p>
+
+            {/* Pulsing circle */}
+            <div className="h-32 flex items-center justify-center relative w-full overflow-hidden my-2">
+              <div 
+                style={{ transform: `scale(${isActive ? currentScale : 1})` }}
+                className={`w-20 h-20 rounded-full border-[3px] flex items-center justify-center transition-all duration-75 ease-linear shadow-retro-sm ${
+                  isActive ? currentPhase.color : 'border-app-br bg-app-bg text-app-mt'
+                }`}
+              >
                 <div className="text-center font-black flex flex-col justify-center items-center">
                   <span className="text-[9px] uppercase tracking-wider font-extrabold leading-none">
-                    {currentPhase.type}
+                    {isActive ? currentPhase.type : 'Ready'}
                   </span>
-                  <span className="text-lg leading-none mt-1">{secondsRemaining}</span>
+                  {isActive && <span className="text-xl leading-none mt-1">{secondsRemaining}</span>}
                 </div>
-              ) : (
-                <span className="text-[10px] font-black uppercase tracking-wider text-center p-1">
-                  Ready
-                </span>
-              )}
+              </div>
+            </div>
+
+            {/* Modal Controls */}
+            <div className="flex gap-2 w-full mt-2">
+              <button
+                onClick={toggleActive}
+                className="flex-1 py-2.5 rounded-lg border-2 border-app-br bg-app-bg hover:bg-app-bg/80 text-app-ink font-black text-[10px] uppercase tracking-wider cursor-pointer shadow-retro-sm active:translate-y-[1px] transition-colors"
+              >
+                {isActive ? 'Pause' : 'Resume'}
+              </button>
+              <button
+                onClick={closeExercise}
+                className="flex-1 py-2.5 rounded-lg border-2 border-app-br bg-tomato hover:bg-tomato-dark text-white font-black text-[10px] uppercase tracking-wider cursor-pointer shadow-retro-sm active:translate-y-[1px] transition-colors"
+              >
+                Close
+              </button>
             </div>
           </div>
-
-          {/* Action button */}
-          <button
-            onClick={toggleActive}
-            className={`w-full py-2.5 rounded-lg border-2 border-app-br font-black text-xs uppercase tracking-wider shadow-retro-sm shadow-retro-hover cursor-pointer transition-all ${
-              isActive 
-                ? 'bg-app-bg hover:bg-tomato/5 hover:text-tomato text-app-ink' 
-                : 'bg-tomato hover:bg-tomato-dark text-white'
-            }`}
-          >
-            {isActive ? 'Pause Exercise' : 'Start Breathing'}
-          </button>
         </div>
       )}
     </div>

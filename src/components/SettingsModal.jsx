@@ -21,6 +21,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSaveSetting
   const [interval, setIntervalVal] = useState(settings.interval);
   const [autoBreak, setAutoBreak] = useState(settings.autoBreak);
   const [timerStyle, setTimerStyle] = useState(settings.timerStyle || 'circle');
+  const [vibe, setVibe] = useState(settings.vibe || 'vibeing');
 
   if (!isOpen) return null;
 
@@ -33,7 +34,8 @@ export default function SettingsModal({ isOpen, onClose, settings, onSaveSetting
       long: Math.max(1, parseInt(long, 10) || 20),
       interval: Math.max(1, parseInt(interval, 10) || 4),
       autoBreak,
-      timerStyle
+      timerStyle,
+      vibe: vibe.trim() || 'vibeing'
     });
     onClose();
   };
@@ -71,6 +73,22 @@ export default function SettingsModal({ isOpen, onClose, settings, onSaveSetting
               maxLength={20}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border-2 border-app-br bg-app-bg text-sm font-bold focus:border-tomato outline-none text-app-ink"
+            />
+          </div>
+
+          {/* Status Vibe Input */}
+          <div className="flex flex-col gap-1.5 pb-2.5 border-b-2 border-app-br/30">
+            <label htmlFor="vibe" className="text-[10px] font-extrabold uppercase tracking-wide text-app-mt">
+              Your Status / Vibe
+            </label>
+            <input 
+              id="vibe"
+              type="text" 
+              placeholder="e.g. locked in, vibeing"
+              maxLength={20}
+              value={vibe}
+              onChange={(e) => setVibe(e.target.value)}
               className="w-full px-3 py-2 rounded-lg border-2 border-app-br bg-app-bg text-sm font-bold focus:border-tomato outline-none text-app-ink"
             />
           </div>

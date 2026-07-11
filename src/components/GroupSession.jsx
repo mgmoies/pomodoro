@@ -143,9 +143,14 @@ export default function GroupSession({
                 className="p-3 border-2 border-app-br bg-app-card rounded-lg shadow-retro-sm"
               >
                 {/* Name + Status badge */}
-                <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-xs font-black truncate max-w-[130px]">
-                    {user.name}
+                <div className="flex justify-between items-center mb-1.5 gap-2">
+                  <span className="text-xs font-black truncate flex items-center gap-1.5 min-w-0">
+                    <span className="truncate">{user.name}</span>
+                    {user.vibe && (
+                      <span className="text-[8px] bg-app-bg px-1.5 py-0.5 rounded border border-app-br/30 font-extrabold text-app-mt lowercase shrink-0">
+                        {user.vibe}
+                      </span>
+                    )}
                   </span>
                   <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded border border-app-br/30 ${
                     isFocusing 

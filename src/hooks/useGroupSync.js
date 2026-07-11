@@ -12,6 +12,7 @@ export default function useGroupSync({
   roomId,
   userId,
   userName,
+  userVibe = '',
   activeTaskId,
   timerState
 }) {
@@ -43,6 +44,7 @@ export default function useGroupSync({
           name: data.name || 'Tomato Member',
           task: data.activeTask || '',
           status: data.status || 'Idle',
+          vibe: data.vibe || '',
           progress: data.progress || 0,
           lastHeartbeat: data.lastHeartbeat || 0
         }));
@@ -115,6 +117,7 @@ export default function useGroupSync({
         activeTask: activeTaskName,
         status: statusString,
         progress,
+        vibe: userVibe,
         lastHeartbeat: Date.now()
       });
     };
@@ -126,7 +129,7 @@ export default function useGroupSync({
     const interval = setInterval(updateParticipant, 10000);
 
     return () => clearInterval(interval);
-  }, [roomId, userId, userName, activeTaskId, timerState.status, timerState.mode, timerState.duration, enabled]);
+  }, [roomId, userId, userName, userVibe, activeTaskId, timerState.status, timerState.mode, timerState.duration, enabled]);
 
   // 3. Shared Tasks modifier actions
   const getTaskById = (taskId) => {
