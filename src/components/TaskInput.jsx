@@ -19,6 +19,13 @@ const ListIcon = () => (
   </svg>
 );
 
+const TomatoSmallIcon = () => (
+  <svg className="w-3.5 h-3.5 text-tomato inline-block mr-0.5 align-middle" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v3m0 0c-3 0-5.5 1.5-6.5 4-1 2.5-.5 5.5 1.5 7.5s5 2.5 7.5 1.5c2.5-1 4-3.5 4-6.5s-1.5-5.5-4-6.5c-.7-.3-1.6-.5-2.5-.5z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6c.5-1.5 1.5-2.5 3-2.5M12 6c-.5-1.5-1.5-2.5-3-2.5" />
+  </svg>
+);
+
 export default function TaskInput({ 
   tasks, 
   onAddTask, 
@@ -107,12 +114,31 @@ export default function TaskInput({
                   {task.completed && <CheckIcon />}
                 </button>
 
-                {/* Task Name */}
-                <span className={`flex-1 text-sm font-extrabold truncate ${
-                  task.completed ? 'line-through text-app-mt' : 'text-app-ink'
-                }`}>
-                  {task.name}
-                </span>
+                {/* Task Name & Metadata (Creator, completed Pomodoros) */}
+                <div className="flex-1 flex items-center justify-between min-w-0 pr-2 select-none">
+                  <span className={`text-sm font-extrabold truncate ${
+                    task.completed ? 'line-through text-app-mt font-bold' : 'text-app-ink'
+                  }`}>
+                    {task.name}
+                  </span>
+                  
+                  <div className="flex items-center gap-2 shrink-0">
+                    {/* Creator label tag */}
+                    <span className="text-[9px] italic text-app-mt font-bold">
+                      by {task.createdBy}
+                    </span>
+
+                    {/* Focus Cycle count */}
+                    {task.pomosCompleted > 0 && (
+                      <span 
+                        className="flex items-center text-[10px] font-black text-tomato border border-tomato/30 px-1.5 py-0.5 rounded bg-tomato/5" 
+                        title={`${task.pomosCompleted} focus cycles completed`}
+                      >
+                        <TomatoSmallIcon /> {task.pomosCompleted}
+                      </span>
+                    )}
+                  </div>
+                </div>
 
                 {/* Delete Button */}
                 <button 
@@ -128,16 +154,15 @@ export default function TaskInput({
                 </button>
               </div>
 
-              {/* Nested Subtasks area (shows if subtasks exist OR if this task is active) */}
+              {/* Nested Subtasks area */}
               {((task.subtasks && task.subtasks.length > 0) || isActive) && (
                 <div 
                   className="ml-6 pl-4 border-l-2 border-app-br/30 mt-2.5 flex flex-col gap-2"
-                  onClick={(e) => e.stopPropagation()} // Stop switching active task when clicking subtask list
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  {/* Subtasks rendering */}
+                  {/* Subtasks list */}
                   {task.subtasks && task.subtasks.map((sub) => (
                     <div key={sub.id} className="flex items-center gap-2 group/sub py-0.5">
-                      {/* Checkbox */}
                       <button 
                         type="button"
                         onClick={() => onToggleSubtask && onToggleSubtask(task.id, sub.id)}
@@ -150,14 +175,12 @@ export default function TaskInput({
                         {sub.completed && <CheckIcon />}
                       </button>
 
-                      {/* Name */}
                       <span className={`flex-1 text-[11px] font-extrabold truncate ${
                         sub.completed ? 'line-through text-app-mt' : 'text-app-ink'
                       }`}>
                         {sub.name}
                       </span>
 
-                      {/* Delete */}
                       <button 
                         type="button"
                         onClick={() => onDeleteSubtask && onDeleteSubtask(task.id, sub.id)}
@@ -169,7 +192,7 @@ export default function TaskInput({
                     </div>
                   ))}
 
-                  {/* Add Subtask Form (Only for Active Task) */}
+                  {/* Add Subtask Form */}
                   {isActive && (
                     <form 
                       onSubmit={(e) => handleSubSubmit(e, task.id)}

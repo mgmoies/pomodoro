@@ -14,6 +14,7 @@ const CloseIcon = () => (
 );
 
 export default function SettingsModal({ isOpen, onClose, settings, onSaveSettings }) {
+  const [displayName, setDisplayName] = useState(settings.displayName || '');
   const [pomo, setPomo] = useState(settings.pomo);
   const [short, setShort] = useState(settings.short);
   const [long, setLong] = useState(settings.long);
@@ -25,6 +26,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSaveSetting
   const handleSubmit = (e) => {
     e.preventDefault();
     onSaveSettings({
+      displayName: displayName.trim() || 'Tomato Member',
       pomo: Math.max(1, parseInt(pomo, 10) || 25),
       short: Math.max(1, parseInt(short, 10) || 5),
       long: Math.max(1, parseInt(long, 10) || 20),
@@ -55,6 +57,22 @@ export default function SettingsModal({ isOpen, onClose, settings, onSaveSetting
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           
+          {/* Display Name Input */}
+          <div className="flex flex-col gap-1.5 pb-2.5 border-b-2 border-app-br/30">
+            <label htmlFor="displayName" className="text-[10px] font-extrabold uppercase tracking-wide text-app-mt">
+              Your Name (Group Session)
+            </label>
+            <input 
+              id="displayName"
+              type="text" 
+              placeholder="e.g. Sarah"
+              maxLength={20}
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border-2 border-app-br bg-app-bg text-sm font-bold focus:border-tomato outline-none text-app-ink"
+            />
+          </div>
+
           {/* Durations */}
           <div className="grid grid-cols-3 gap-3">
             <div className="flex flex-col gap-1">

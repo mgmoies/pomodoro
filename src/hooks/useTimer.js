@@ -115,6 +115,33 @@ export default function useTimer(settings, onSessionComplete, onDurationAdjust) 
     }
   }, [mode, getDuration, status, onDurationAdjust]);
 
+  // Sync timer state with remote room coordinator (Firebase/BroadcastChannel)
+  const syncWithRemote = useCallback((remote) => {
+    if (!remote) return;
+    
+    setMode(remote.mode);
+    durationSecondsRef.current = remote.duration;
+    setStatus(remote.status);
+
+    if (remote.status === 'running') {
+      startTimeRef.current = remote.startTime;
+      const elapsed = Math.round((Date.now() - remote.startTime) / 1000);
+      const nextTimeLeft = Math.max(0, remote.duration - elapsed);
+      setTimeLeft(nextTimeLeft);
+      
+      stopInterval();
+      timerRef.current = setInterval(tick, 200);
+    } else if (remote.status === 'paused') {
+      stopInterval();
+      setTimeLeft(remote.pausedTimeLeft);
+      timeLeftOnPauseRef.current = remote.pausedTimeLeft;
+    } else {
+      stopInterval();
+      setTimeLeft(remote.duration);
+      timeLeftOnPauseRef.current = remote.duration;
+    }
+  }, [tick]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => stopInterval();
@@ -129,6 +156,12 @@ export default function useTimer(settings, onSessionComplete, onDurationAdjust) 
     reset,
     skip,
     switchMode,
-    adjustDuration
+    adjustDuration,
+    syncWithRemote,
+    // Expose refs/times for serialization
+    startTime: startTimeRef.current,
+    duration: durationSecondsRef.current,
+    timeLeftOnPause: timeLeftOnPauseRef.current
   };
 }
+

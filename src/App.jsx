@@ -3,6 +3,8 @@ import useTheme from './hooks/useTheme';
 import useLocalStorage from './hooks/useLocalStorage';
 import useAudio from './hooks/useAudio';
 import useTimer from './hooks/useTimer';
+import useGroupSync from './hooks/useGroupSync';
+import ThemePicker from './components/ThemePicker';
 
 import ModeSelector from './components/ModeSelector';
 import Timer from './components/Timer';
@@ -30,23 +32,42 @@ const SettingsIcon = () => (
   </svg>
 );
 
-const SunIcon = () => (
-  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-  </svg>
-);
 
-const MoonIcon = () => (
-  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-  </svg>
-);
+
+// Adjective + Noun room ID generator (Monkeytype style)
+const ADJECTIVES = ['swift','bright','silent','golden','crimson','ancient','iron','velvet','misty','lunar','bold','calm','dark','deep','emerald','silver','amber','jade','marble','steel'];
+const NOUNS = ['falcon','harbor','press','lantern','forge','tide','grove','manor','tower','ridge','quill','anvil','ember','abbey','dusk','atlas','cipher','echo','fern','glyph'];
+const generateRoomId = () => {
+  const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+  const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+  return `${adj}-${noun}`;
+};
 
 export default function App() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   
+  // Persistent User ID for Group sessions (sessionStorage to isolate tabs on the same host)
+  const [userId] = useState(() => {
+    const saved = sessionStorage.getItem('pomodoro_user_id');
+    if (saved) return saved;
+    const generated = 'user_' + Math.random().toString(36).substring(2, 11);
+    sessionStorage.setItem('pomodoro_user_id', generated);
+    return generated;
+  });
+
+  // Dynamic Room ID read from URL query parameters (?room=xyz)
+  const [roomId, setRoomId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const r = params.get('room');
+      if (r) return r;
+    }
+    return 'letterpress-lab';
+  });
+
   // Settings state
   const [settings, setSettings] = useLocalStorage('pomodoro_settings', {
+    displayName: 'Tomato Member',
     pomo: 25,
     short: 5,
     long: 20,
@@ -54,8 +75,12 @@ export default function App() {
     autoBreak: false
   });
 
-  // Tasks state
-  const [tasks, setTasks] = useLocalStorage('pomodoro_tasks', []);
+  // Lobby joining state
+  const [hasJoined, setHasJoined] = useState(false);
+  const [tempName, setTempName] = useState(settings.displayName || '');
+  const [tempRoomId, setTempRoomId] = useState(roomId);
+
+  // Private client Active Task ID selection (kept local to allow independent focus selection)
   const [activeTaskId, setActiveTaskId] = useLocalStorage('pomodoro_active_task_id', null);
 
   // Statistics state
@@ -110,13 +135,8 @@ export default function App() {
       });
 
       if (activeTaskId) {
-        setTasks(prev => prev.map(t => {
-          if (t.id === activeTaskId) {
-            const currentPomos = t.pomosCompleted || 0;
-            return { ...t, pomosCompleted: currentPomos + 1 };
-          }
-          return t;
-        }));
+        // Increment pomosCompleted in the shared room database
+        incrementTaskPomos(activeTaskId);
       }
 
       showToast('Focus session complete! Take a break.');
@@ -162,11 +182,68 @@ export default function App() {
     }));
   };
 
-  // Initialize timer
+  // Initialize timer (running purely local and independent)
   const timer = useTimer(settings, handleSessionComplete, handleDurationAdjust);
+
+  // Initialize Group room synchronization hook (Firebase / BroadcastChannel)
+  const { 
+    participants, 
+    roomName,
+    roomTasks,
+    addTask,
+    toggleTask,
+    deleteTask,
+    addSubtask,
+    toggleSubtask,
+    deleteSubtask,
+    incrementTaskPomos
+  } = useGroupSync({
+    enabled: hasJoined, // Hook gates connection actions until user enters display name
+    roomId,
+    userId,
+    userName: settings.displayName || 'Tomato Member',
+    activeTaskId,
+    timerState: {
+      status: timer.status,
+      mode: timer.mode,
+      timeLeft: timer.timeLeft,
+      duration: timer.duration || (timer.mode === 'pomo' ? settings.pomo * 60 : timer.mode === 'short' ? settings.short * 60 : settings.long * 60)
+    }
+  });
+
+  const tasks = roomTasks || [];
+  const activeTask = tasks.find(t => t.id === activeTaskId);
+
+  // Switch room trigger
+  const handleRoomChange = (newRoomId) => {
+    setRoomId(newRoomId);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('room', newRoomId);
+      window.history.pushState({}, '', url.toString());
+      showToast(`Joined room: ${newRoomId}`);
+    }
+  };
+
+  // Onboarding Join Room Trigger
+  const handleJoin = (e) => {
+    e.preventDefault();
+    if (tempName.trim()) {
+      setSettings(prev => ({ ...prev, displayName: tempName.trim() }));
+      // Apply room ID if user changed it
+      const finalRoom = (tempRoomId.trim().toLowerCase().replace(/\s+/g, '-')) || roomId;
+      if (finalRoom !== roomId) {
+        handleRoomChange(finalRoom);
+      }
+      setHasJoined(true);
+      showToast(`Joined room "${finalRoom}" as ${tempName.trim()}`);
+    }
+  };
 
   // Keyboard shortcuts
   useEffect(() => {
+    if (!hasJoined) return;
+
     const handleKeyDown = (e) => {
       if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
         return;
@@ -188,70 +265,111 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [timer, initAudio]);
+  }, [timer, initAudio, hasJoined]);
 
-  // Tasks handlers
+  // Tasks handlers (relayed through the useGroupSync hook)
   const handleAddTask = (name) => {
-    const newTask = {
-      id: Date.now().toString(),
-      name,
-      completed: false,
-      pomosCompleted: 0,
-      subtasks: []
-    };
-    setTasks(prev => [...prev, newTask]);
-    if (!activeTaskId) {
-      setActiveTaskId(newTask.id);
-    }
+    addTask(name, settings.displayName || 'Tomato Member');
   };
 
   const handleToggleTask = (id) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+    toggleTask(id);
   };
 
   const handleDeleteTask = (id) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
-    if (activeTaskId === id) {
-      setActiveTaskId(null);
-    }
+    deleteTask(id);
   };
 
-  // Subtask handlers
+  // Subtask handlers (relayed through the useGroupSync hook)
   const handleAddSubtask = (taskId, subName) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id === taskId) {
-        const nextSubtasks = [...(t.subtasks || []), {
-          id: Date.now().toString() + Math.random().toString(),
-          name: subName,
-          completed: false
-        }];
-        return { ...t, subtasks: nextSubtasks };
-      }
-      return t;
-    }));
+    addSubtask(taskId, subName);
   };
 
   const handleToggleSubtask = (taskId, subId) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id === taskId) {
-        const nextSub = (t.subtasks || []).map(s => s.id === subId ? { ...s, completed: !s.completed } : s);
-        return { ...t, subtasks: nextSub };
-      }
-      return t;
-    }));
+    toggleSubtask(taskId, subId);
   };
 
   const handleDeleteSubtask = (taskId, subId) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id === taskId) {
-        const nextSub = (t.subtasks || []).filter(s => s.id !== subId);
-        return { ...t, subtasks: nextSub };
-      }
-      return t;
-    }));
+    deleteSubtask(taskId, subId);
   };
 
-  const activeTask = tasks.find(t => t.id === activeTaskId);
+  // Render Onboarding/Join Room Lobby Screen first
+  if (!hasJoined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-app-bg text-app-ink font-sans p-6 transition-colors duration-300">
+        <div className="w-full max-w-sm border-[3px] border-app-br bg-app-card rounded-2xl shadow-retro p-8 text-center flex flex-col items-center select-none">
+          {/* Vintage Woodcut Illustration */}
+          <div className="w-24 h-24 mb-4 border-[3px] border-app-br rounded-full overflow-hidden bg-app-bg p-1 shadow-retro-sm">
+            <img 
+              src="/assets/tomato.jpg" 
+              alt="Tomato Engraving" 
+              className="w-full h-full object-contain filter dark:invert-0 dark:opacity-85 select-none"
+              draggable="false"
+            />
+          </div>
+
+          <h1 className="font-serif text-3xl mb-1 text-app-ink leading-tight">FocusTomato</h1>
+          <p className="text-[10px] text-app-mt mb-6 uppercase tracking-[2.5px] font-black">
+            London News Agency Sync
+          </p>
+
+          {/* Room ID Input */}
+          <div className="w-full text-left mb-2 flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] uppercase font-black text-app-mt tracking-wider">
+                Room ID
+              </label>
+              <button
+                type="button"
+                onClick={() => setTempRoomId(generateRoomId())}
+                className="text-[9px] font-black text-tomato hover:underline cursor-pointer tracking-wide uppercase"
+              >
+                Generate
+              </button>
+            </div>
+            <input
+              type="text"
+              placeholder="e.g. design-sprint"
+              maxLength={40}
+              value={tempRoomId}
+              onChange={(e) => setTempRoomId(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg border-2 border-app-br bg-app-bg text-sm font-extrabold outline-none focus:border-tomato text-app-ink placeholder-app-mt/40"
+            />
+          </div>
+
+          {/* Onboarding Form */}
+          <form onSubmit={handleJoin} className="w-full flex flex-col gap-4">
+            <div className="text-left flex flex-col gap-1.5">
+              <label className="text-[10px] uppercase font-black text-app-mt tracking-wider">
+                Enter Your Display Name
+              </label>
+              <input 
+                type="text"
+                required
+                placeholder="e.g. Sarah"
+                maxLength={20}
+                value={tempName}
+                onChange={(e) => setTempName(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border-2 border-app-br bg-app-bg text-sm font-extrabold outline-none focus:border-tomato text-app-ink placeholder-app-mt/40"
+              />
+            </div>
+
+            <button 
+              type="submit"
+              className="w-full py-3 rounded-lg border-[3px] border-app-br bg-tomato hover:bg-tomato-dark text-white text-xs font-black shadow-retro-sm shadow-retro-hover cursor-pointer transition-colors"
+            >
+              Join Session Room
+            </button>
+          </form>
+
+          {/* Lobby Footer Credits */}
+          <div className="text-[9px] text-app-mt font-extrabold tracking-wider mt-6 border-t border-app-br/20 pt-4 w-full uppercase">
+            Designed by mgmoies
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col bg-app-bg text-app-ink transition-colors duration-300 overflow-hidden font-sans select-none pb-4">
@@ -265,7 +383,7 @@ export default function App() {
       {/* 3-Column Newspaper Layout split by vertical lines */}
       <main className="flex-1 grid grid-cols-1 md:grid-cols-3 divide-y-[3px] md:divide-y-0 md:divide-x-[3px] divide-app-br gap-0 p-6 overflow-hidden max-h-screen">
         
-        {/* Column 1: Personal Focus Dashboard (Tasks + Stats + Ambient Sounds) */}
+        {/* Column 1: Personal Focus Dashboard (Tasks + Ambient Sounds) */}
         <section className="h-full pr-0 md:pr-6 pb-6 md:pb-0 flex flex-col gap-4 overflow-hidden">
           
           {/* Tasks checklist - stretches to fill column */}
@@ -283,17 +401,8 @@ export default function App() {
             />
           </div>
 
-          {/* Stats Bar */}
-          <div className="py-2.5 px-3 border-[3px] border-app-br bg-app-card rounded-xl shadow-retro-sm">
-            <StatsChips 
-              todayCount={stats.todayPomos} 
-              totalCount={stats.pomos} 
-              totalFocusMinutes={stats.totalMins}
-            />
-          </div>
-
-          {/* Soundboard Card */}
-          <div className="h-[200px] overflow-hidden flex-shrink-0">
+          {/* Soundboard Card (Adjusted height to fit header-aligned volume controls) */}
+          <div className="h-[200px] shrink-0">
             <AmbientSounds 
               startAmbient={startAmbient}
               stopAmbient={stopAmbient}
@@ -324,14 +433,8 @@ export default function App() {
                 <SettingsIcon />
               </button>
 
-              {/* Theme Toggle */}
-              <button 
-                onClick={toggleTheme}
-                className="flex items-center justify-center w-8 h-8 border-2 border-app-br bg-app-card text-app-ink shadow-retro-sm shadow-retro-hover cursor-pointer"
-                title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-              >
-                {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-              </button>
+              {/* Theme Picker */}
+              <ThemePicker currentTheme={theme} onThemeChange={setTheme} />
             </div>
 
             <Timer 
@@ -365,23 +468,43 @@ export default function App() {
           </div>
 
           {/* Highlight current active focus task */}
-          <div className="h-10 flex items-center justify-center">
+          <div className="h-10 flex items-center justify-center shrink-0">
             {activeTask && !activeTask.completed && (
               <div className="flex items-center justify-center gap-1.5 py-1.5 px-4 rounded-md border-2 border-app-br bg-app-tl text-tomato text-xs font-black shadow-retro-sm animate-pulse">
                 <TargetIcon className="w-3.5 h-3.5" /> Focus task: <span className="underline">{activeTask.name}</span>
               </div>
             )}
           </div>
+
+          {/* Stats Chips (Relocated to the bottom of the center column) */}
+          <div className="py-2.5 px-3 border-[3px] border-app-br bg-app-card rounded-xl shadow-retro-sm shrink-0">
+            <StatsChips 
+              todayCount={stats.todayPomos} 
+              totalCount={stats.pomos} 
+              totalFocusMinutes={stats.totalMins}
+            />
+          </div>
         </section>
 
         {/* Column 3: Group Focus Session Room */}
         <section className="h-full pl-0 md:pl-6 pt-6 md:pt-0 overflow-hidden">
           <div className="h-full border-[3px] border-app-br bg-app-card rounded-2xl shadow-retro p-5 overflow-hidden flex flex-col">
-            <GroupSession onInviteCopied={() => showToast('Invite link copied!')} />
+            <GroupSession 
+              roomId={roomId}
+              participants={participants} 
+              roomName={roomName}
+              onInviteCopied={() => showToast('Invite link copied!')} 
+              onRoomChange={handleRoomChange}
+            />
           </div>
         </section>
 
       </main>
+
+      {/* Footer Credits */}
+      <footer className="text-center text-[9px] text-app-mt font-black py-1.5 shrink-0 tracking-wider uppercase border-t border-app-br/20 mt-1 select-none">
+        FocusTomato • Designed by mgmoies
+      </footer>
 
       {/* Settings Modal dialog */}
       <SettingsModal 
@@ -390,6 +513,7 @@ export default function App() {
         settings={settings}
         onSaveSettings={(nextSettings) => {
           setSettings(nextSettings);
+          setTempName(nextSettings.displayName); // Sync back to lobby display state
           showToast('Settings updated!');
         }}
       />

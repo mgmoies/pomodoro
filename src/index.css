@@ -6,6 +6,7 @@
 
   /* Dynamic theme variables mapped to CSS custom properties */
   --color-tomato: var(--tomato-accent);
+  --color-tomato-dark: var(--tomato-accent-dark);
   --color-short: var(--short-accent);
   --color-long: var(--long-accent);
 
@@ -17,38 +18,180 @@
   --color-app-tl: var(--tl);
 }
 
-/* Default Theme: Dark London Newspaper */
-:root {
+/* ─────────────────────────────────────────────────
+   THEME 1: Dark Newspaper (Default dark)
+───────────────────────────────────────────────── */
+:root,
+html[data-theme="dark-newspaper"] {
   --bg: #161310;
   --card: #1E1A16;
   --ink: #D7CBB5;
   --mt: #7C705E;
   --br: #3A322A;
   --tl: rgba(166, 59, 46, 0.15);
-  
   --tomato-accent: #A63B2E;
+  --tomato-accent-dark: #8a2e22;
   --short-accent: #2D588C;
   --long-accent: #246944;
-  
   color-scheme: dark;
 }
 
-/* Light Theme: Classic Yellowed London Newspaper Paper */
-html[data-theme="light"] {
+/* ─────────────────────────────────────────────────
+   THEME 2: Sepia Press (Light newspaper)
+───────────────────────────────────────────────── */
+html[data-theme="sepia-press"] {
   --bg: #E6DBC4;
   --card: #F0E7D2;
   --ink: #1C1917;
   --mt: #695F4D;
   --br: #1C1917;
   --tl: rgba(156, 42, 30, 0.1);
-  
   --tomato-accent: #9C2A1E;
+  --tomato-accent-dark: #7d1f16;
   --short-accent: #1D4678;
   --long-accent: #175234;
-  
   color-scheme: light;
 }
 
+/* ─────────────────────────────────────────────────
+   THEME 3: Midnight Ink (Deep navy)
+───────────────────────────────────────────────── */
+html[data-theme="midnight-ink"] {
+  --bg: #0D1117;
+  --card: #161B22;
+  --ink: #C9D1D9;
+  --mt: #6E7681;
+  --br: #30363D;
+  --tl: rgba(88, 166, 255, 0.1);
+  --tomato-accent: #58A6FF;
+  --tomato-accent-dark: #388bfd;
+  --short-accent: #3FB950;
+  --long-accent: #D2A8FF;
+  color-scheme: dark;
+}
+
+/* ─────────────────────────────────────────────────
+   THEME 4: Forest Type (Dark earthy greens)
+───────────────────────────────────────────────── */
+html[data-theme="forest-type"] {
+  --bg: #0F1A0F;
+  --card: #172117;
+  --ink: #C8D5B9;
+  --mt: #6B8A6B;
+  --br: #2E472E;
+  --tl: rgba(106, 176, 76, 0.12);
+  --tomato-accent: #6AB04C;
+  --tomato-accent-dark: #54913c;
+  --short-accent: #4ECDC4;
+  --long-accent: #F7DC6F;
+  color-scheme: dark;
+}
+
+/* ─────────────────────────────────────────────────
+   THEME 5: Rose & Parchment (Light warm pink)
+───────────────────────────────────────────────── */
+html[data-theme="rose-parchment"] {
+  --bg: #FDF0F0;
+  --card: #FFF5F5;
+  --ink: #2D1B1B;
+  --mt: #9B7070;
+  --br: #E8BEBE;
+  --tl: rgba(206, 92, 92, 0.08);
+  --tomato-accent: #C0392B;
+  --tomato-accent-dark: #a33023;
+  --short-accent: #8E44AD;
+  --long-accent: #27AE60;
+  color-scheme: light;
+}
+
+/* ─────────────────────────────────────────────────
+   THEME 6: Carbon (Dark charcoal high contrast)
+───────────────────────────────────────────────── */
+html[data-theme="carbon"] {
+  --bg: #0A0A0A;
+  --card: #141414;
+  --ink: #F5F5F5;
+  --mt: #737373;
+  --br: #2A2A2A;
+  --tl: rgba(245, 245, 245, 0.06);
+  --tomato-accent: #E5E5E5;
+  --tomato-accent-dark: #cccccc;
+  --short-accent: #A0A0A0;
+  --long-accent: #6A6A6A;
+  color-scheme: dark;
+}
+
+/* ─────────────────────────────────────────────────
+   THEME 7: Lavender Fields (Soft purple)
+───────────────────────────────────────────────── */
+html[data-theme="lavender-fields"] {
+  --bg: #F3F0FF;
+  --card: #FAF8FF;
+  --ink: #1E1433;
+  --mt: #7B6FA0;
+  --br: #C5B9E8;
+  --tl: rgba(139, 90, 211, 0.08);
+  --tomato-accent: #8B5AD3;
+  --tomato-accent-dark: #7040bb;
+  --short-accent: #E91E8C;
+  --long-accent: #4CAF87;
+  color-scheme: light;
+}
+
+/* ─────────────────────────────────────────────────
+   THEME 8: Amber Terminal (Retro golden terminal)
+───────────────────────────────────────────────── */
+html[data-theme="amber-terminal"] {
+  --bg: #0D0900;
+  --card: #181100;
+  --ink: #FFB300;
+  --mt: #8A6500;
+  --br: #3D2E00;
+  --tl: rgba(255, 179, 0, 0.1);
+  --tomato-accent: #FFB300;
+  --tomato-accent-dark: #e0a000;
+  --short-accent: #FF6D00;
+  --long-accent: #AEEA00;
+  color-scheme: dark;
+}
+
+/* ─────────────────────────────────────────────────
+   THEME 9: Ocean Depths (Dark teal marine)
+───────────────────────────────────────────────── */
+html[data-theme="ocean-depths"] {
+  --bg: #071E26;
+  --card: #0D2B36;
+  --ink: #B2EBF2;
+  --mt: #4A8A96;
+  --br: #1A4A58;
+  --tl: rgba(0, 188, 212, 0.12);
+  --tomato-accent: #00BCD4;
+  --tomato-accent-dark: #0099b0;
+  --short-accent: #00E5FF;
+  --long-accent: #69F0AE;
+  color-scheme: dark;
+}
+
+/* ─────────────────────────────────────────────────
+   THEME 10: Crimson Press (Bold dark red)
+───────────────────────────────────────────────── */
+html[data-theme="crimson-press"] {
+  --bg: #150506;
+  --card: #1F080A;
+  --ink: #F5C6C9;
+  --mt: #914A50;
+  --br: #4A1519;
+  --tl: rgba(229, 57, 53, 0.12);
+  --tomato-accent: #E53935;
+  --tomato-accent-dark: #c62828;
+  --short-accent: #FF6E40;
+  --long-accent: #FFCA28;
+  color-scheme: dark;
+}
+
+/* ─────────────────────────────────────────────────
+   BASE STYLES
+───────────────────────────────────────────────── */
 body {
   font-family: var(--font-sans);
   background-color: var(--bg);
@@ -115,4 +258,13 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--ink);
+}
+
+/* Theme picker panel fade-in */
+@keyframes picker-appear {
+  from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0);    }
+}
+.animate-picker-appear {
+  animation: picker-appear 0.15s ease forwards;
 }

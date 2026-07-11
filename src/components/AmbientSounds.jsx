@@ -95,11 +95,33 @@ export default function AmbientSounds({ startAmbient, stopAmbient, setVolume }) 
   return (
     <div id="ambient" className="h-full flex flex-col justify-between p-4 rounded-2xl border-[3px] border-app-br bg-app-card shadow-retro font-sans text-app-ink">
       <div>
-        <div className="flex items-center text-[10px] uppercase font-extrabold tracking-[2.5px] text-app-mt mb-2 select-none">
-          <MusicIcon /> Ambient Sounds
+        {/* Header row with inline volume controls */}
+        <div className="flex items-center justify-between text-[10px] uppercase font-extrabold tracking-[2.5px] text-app-mt mb-3 select-none">
+          <div className="flex items-center">
+            <MusicIcon /> Ambient Sounds
+          </div>
+          
+          <div className="flex items-center gap-1.5 select-none lowercase tracking-normal font-sans font-bold text-[10px]">
+            <label htmlFor="volSlider" className="text-app-mt">
+              vol:
+            </label>
+            <input 
+              type="range" 
+              min="0" 
+              max="100" 
+              value={volValue} 
+              id="volSlider" 
+              onChange={handleVolumeChange}
+              className="w-16 md:w-20 accent-tomato h-0.5 bg-app-br rounded-lg cursor-pointer"
+              aria-label="Volume slider"
+            />
+            <span className="text-app-mt min-w-[20px] text-right font-black">
+              {volValue}%
+            </span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-2 mb-2">
+        <div className="grid grid-cols-4 gap-2">
           {soundButtons.map((snd) => {
             const isPlaying = activeSounds[snd.id];
             return (
@@ -135,26 +157,6 @@ export default function AmbientSounds({ startAmbient, stopAmbient, setVolume }) 
             </span>
           </button>
         </div>
-      </div>
-
-      {/* Volume slider */}
-      <div className="flex items-center gap-3 select-none mt-1">
-        <label htmlFor="volSlider" className="text-xs text-app-mt font-bold">
-          Vol
-        </label>
-        <input 
-          type="range" 
-          min="0" 
-          max="100" 
-          value={volValue} 
-          id="volSlider" 
-          onChange={handleVolumeChange}
-          className="flex-1 accent-tomato h-1 bg-app-br rounded-lg cursor-pointer"
-          aria-label="Volume slider"
-        />
-        <span className="text-[11px] text-app-mt font-extrabold min-w-[28px] text-right">
-          {volValue}%
-        </span>
       </div>
     </div>
   );
