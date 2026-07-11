@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "DM Serif Display", Georgia, serif;
+  --font-sans: "DM Sans", Arial, sans-serif;
+
+  /* Dynamic theme variables mapped to CSS custom properties */
+  --color-tomato: var(--tomato-accent);
+  --color-short: var(--short-accent);
+  --color-long: var(--long-accent);
+
+  --color-app-bg: var(--bg);
+  --color-app-card: var(--card);
+  --color-app-ink: var(--ink);
+  --color-app-mt: var(--mt);
+  --color-app-br: var(--br);
+  --color-app-tl: var(--tl);
+}
+
+/* Default Theme: Dark London Newspaper */
+:root {
+  --bg: #161310;
+  --card: #1E1A16;
+  --ink: #D7CBB5;
+  --mt: #7C705E;
+  --br: #3A322A;
+  --tl: rgba(166, 59, 46, 0.15);
+  
+  --tomato-accent: #A63B2E;
+  --short-accent: #2D588C;
+  --long-accent: #246944;
+  
+  color-scheme: dark;
+}
+
+/* Light Theme: Classic Yellowed London Newspaper Paper */
+html[data-theme="light"] {
+  --bg: #E6DBC4;
+  --card: #F0E7D2;
+  --ink: #1C1917;
+  --mt: #695F4D;
+  --br: #1C1917;
+  --tl: rgba(156, 42, 30, 0.1);
+  
+  --tomato-accent: #9C2A1E;
+  --short-accent: #1D4678;
+  --long-accent: #175234;
+  
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Retro Engraving Shadow style */
+.shadow-retro {
+  box-shadow: 4px 4px 0px 0px var(--br);
+}
+
+.shadow-retro-sm {
+  box-shadow: 2px 2px 0px 0px var(--br);
+}
+
+.shadow-retro-hover {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.shadow-retro-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--br);
+}
+.shadow-retro-hover:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px 0px var(--br);
+}
+
+/* Pulsing session indicator */
+@keyframes retro-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+}
+.animate-retro-pulse {
+  animation: retro-pulse 1.6s ease-in-out infinite;
+}
+
+/* SVG ring styling */
+.timer-svg circle {
+  transition: stroke-dashoffset 0.8s linear, stroke 0.3s;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-left: 2px solid var(--br);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--mt);
+  border: 2px solid var(--br);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink);
+}
