@@ -11,6 +11,7 @@ import Timer from './components/Timer';
 import Controls from './components/Controls';
 import SessionDots from './components/SessionDots';
 import StatsChips from './components/StatsChips';
+import RelaxationWidget from './components/RelaxationWidget';
 import TaskInput from './components/TaskInput';
 import AmbientSounds from './components/AmbientSounds';
 import SettingsModal from './components/SettingsModal';
@@ -474,6 +475,11 @@ export default function App() {
                 <TargetIcon className="w-3.5 h-3.5" /> Focus task: <span className="underline">{activeTask.name}</span>
               </div>
             )}
+          </div>
+
+          {/* Relaxation/Breathing Widget */}
+          <div className="shrink-0 mb-4">
+            <RelaxationWidget />
           </div>
 
           {/* Stats Chips */}
