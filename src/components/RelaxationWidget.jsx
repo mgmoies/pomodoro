@@ -30,6 +30,14 @@ const PATTERNS = {
   }
 };
 
+const LotusIcon = () => (
+  <svg className="w-4.5 h-4.5 text-app-ink shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 21c-2-3-5-4-5-8.5C7 8.5 10 7.5 12 3c2 4.5 5 5.5 5 9.5 0 4.5-3 5.5-5 8.5z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 12c-2-1-4.5-.5-5.5.5-1.2 1.2-.5 3.5 2.5 4 1.5.2 2.5-.2 3-1" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 12c2-1 4.5-.5 5.5.5 1.2 1.2.5 3.5-2.5 4-1.5.2-2.5-.2-3-1" />
+  </svg>
+);
+
 export default function RelaxationWidget() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [patternKey, setPatternKey] = useState('4444');
@@ -105,7 +113,7 @@ export default function RelaxationWidget() {
         className="w-full py-2.5 px-4 bg-app-bg/50 border-b-[3px] border-app-br flex items-center justify-between text-xs font-black text-app-ink hover:bg-app-bg/85 cursor-pointer uppercase tracking-wider transition-colors"
       >
         <span className="flex items-center gap-1.5">
-          <span>🧘</span> Relax & Breathe
+          <LotusIcon /> Relax & Breathe
         </span>
         <span className="text-[10px] font-bold text-app-mt">
           {isExpanded ? 'Collapse ▲' : 'Expand ▼'}
