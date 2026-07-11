@@ -15,16 +15,16 @@ export default function StatsChips({ todayCount, totalCount, totalFocusMinutes }
   };
 
   return (
-    <div className="flex gap-2 justify-center flex-wrap max-w-sm mx-auto select-none font-sans">
-      <div className="flex items-center px-3 py-1 border-2 border-app-br bg-app-card text-app-mt text-[10px] font-extrabold shadow-retro-sm">
+    <div className="flex justify-center gap-3 flex-wrap font-sans font-extrabold text-xs select-none">
+      <div className="flex items-center px-5 py-2.5 border-[3px] border-app-br bg-app-card text-app-mt shadow-retro-sm">
         Today:&nbsp;<span className="text-tomato font-black">{todayCount}</span>&nbsp;<TomatoIcon />
       </div>
       
-      <div className="flex items-center px-3 py-1 border-2 border-app-br bg-app-card text-app-mt text-[10px] font-extrabold shadow-retro-sm">
+      <div className="flex items-center px-5 py-2.5 border-[3px] border-app-br bg-app-card text-app-mt shadow-retro-sm">
         Total:&nbsp;<span className="text-tomato font-black">{totalCount}</span>&nbsp;<TomatoIcon />
       </div>
 
-      <div className="flex items-center px-3 py-1 border-2 border-app-br bg-app-card text-app-mt text-[10px] font-extrabold shadow-retro-sm">
+      <div className="flex items-center px-5 py-2.5 border-[3px] border-app-br bg-app-card text-app-mt shadow-retro-sm">
         Focus:&nbsp;<span className="text-tomato font-black">{formatFocusTime(totalFocusMinutes)}</span>
       </div>
     </div>
