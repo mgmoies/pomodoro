@@ -363,9 +363,8 @@ export default function App() {
           </form>
 
           {/* Lobby Footer Credits */}
-          <div className="text-[9px] text-app-mt font-extrabold tracking-wider mt-6 border-t border-app-br/20 pt-4 w-full uppercase flex flex-col items-center gap-1">
-            <span>© {new Date().getFullYear()} FocusTomato. All rights reserved.</span>
-            <span>Designed by mgmoies • Powered by React & Vite & Firebase</span>
+          <div className="text-[9px] text-app-mt font-extrabold tracking-wider mt-6 border-t border-app-br/20 pt-4 w-full uppercase">
+            © {new Date().getFullYear()} FocusTomato • Designed by mgmoies • Powered by React, Vite & Firebase
           </div>
         </div>
       </div>
@@ -477,8 +476,8 @@ export default function App() {
             )}
           </div>
 
-          {/* Stats Chips */}
-          <div className="shrink-0">
+          {/* Stats Chips (Relocated to the bottom of the center column) */}
+          <div className="py-2.5 px-3 border-[3px] border-app-br bg-app-card rounded-xl shadow-retro-sm shrink-0">
             <StatsChips 
               todayCount={stats.todayPomos} 
               totalCount={stats.pomos} 
@@ -503,12 +502,8 @@ export default function App() {
       </main>
 
       {/* Footer Credits */}
-      <footer className="text-center text-[9px] text-app-mt font-black py-2 shrink-0 tracking-wider uppercase border-t border-app-br/20 mt-1 select-none flex flex-col md:flex-row justify-center items-center gap-1 md:gap-4">
-        <span>© {new Date().getFullYear()} FocusTomato. All rights reserved.</span>
-        <span className="hidden md:inline">•</span>
-        <span>Designed by mgmoies</span>
-        <span className="hidden md:inline">•</span>
-        <span>Powered by React & Vite & Firebase</span>
+      <footer className="text-center text-[9px] text-app-mt font-black py-1.5 shrink-0 tracking-wider uppercase border-t border-app-br/20 mt-1 select-none">
+        © {new Date().getFullYear()} FocusTomato • Designed by mgmoies • Powered by React, Vite & Firebase
       </footer>
 
       {/* Settings Modal dialog */}
