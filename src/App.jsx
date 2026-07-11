@@ -450,6 +450,7 @@ export default function App() {
               mode={timer.mode}
               timerStatus={timer.status}
               onAdjustDuration={timer.adjustDuration}
+              timerStyle={settings.timerStyle || 'circle'}
             />
 
             <Controls 

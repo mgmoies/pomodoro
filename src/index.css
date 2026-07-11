@@ -268,3 +268,13 @@ body {
 .animate-picker-appear {
   animation: picker-appear 0.15s ease forwards;
 }
+
+/* Hourglass Sand Drip animation */
+@keyframes sand-drip {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+.animate-sand-drip {
+  animation: sand-drip 1.2s linear infinite;
+}

@@ -20,6 +20,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSaveSetting
   const [long, setLong] = useState(settings.long);
   const [interval, setIntervalVal] = useState(settings.interval);
   const [autoBreak, setAutoBreak] = useState(settings.autoBreak);
+  const [timerStyle, setTimerStyle] = useState(settings.timerStyle || 'circle');
 
   if (!isOpen) return null;
 
@@ -31,7 +32,8 @@ export default function SettingsModal({ isOpen, onClose, settings, onSaveSetting
       short: Math.max(1, parseInt(short, 10) || 5),
       long: Math.max(1, parseInt(long, 10) || 20),
       interval: Math.max(1, parseInt(interval, 10) || 4),
-      autoBreak
+      autoBreak,
+      timerStyle
     });
     onClose();
   };
@@ -151,6 +153,24 @@ export default function SettingsModal({ isOpen, onClose, settings, onSaveSetting
               />
               <div className="w-9 h-5 border-2 border-app-br bg-app-bg peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-app-br after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-tomato"></div>
             </label>
+          </div>
+
+          {/* Timer Visual Style */}
+          <div className="flex flex-col gap-1.5 py-2.5 border-b-2 border-app-br/30">
+            <label htmlFor="timerStyle" className="text-[10px] font-extrabold uppercase tracking-wide text-app-mt">
+              Timer Visual Style
+            </label>
+            <select
+              id="timerStyle"
+              value={timerStyle}
+              onChange={(e) => setTimerStyle(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border-2 border-app-br bg-app-bg text-sm font-bold focus:border-tomato outline-none text-app-ink cursor-pointer"
+            >
+              <option value="circle">Retro Circle Ring</option>
+              <option value="line">Horizontal Progress Bar</option>
+              <option value="dots">Dot Step Matrix</option>
+              <option value="sandclock">Dripping Hourglass</option>
+            </select>
           </div>
 
           {/* Submit */}
